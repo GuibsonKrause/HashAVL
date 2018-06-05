@@ -1,0 +1,49 @@
+#ifndef LISTA_H
+#define LISTA_H
+
+/*------------------ DECLARATION OF STRUCTURES ------------------*/
+
+typedef struct contact
+{
+    char name[50];
+    char phone[50];
+}TContact;
+
+typedef struct NO
+{
+    TContact *contact;
+    struct NO *previous, *next;
+}TNO;
+
+typedef struct list
+{
+    struct NO *first, *last;
+}TList;
+
+/*------------------ CALL FUNCTIONS ------------------*/
+
+void startList(TList *l);
+
+TList * startingList();
+
+int voidList (TList *nList);
+
+//void insertOrdered(TContact *nContact, TList *l);
+
+void insertEndList (TContact *nContact, TList *l);
+
+void listing(TList *l);
+
+void listingOnFileAmount(TList *l, FILE *closedFile);
+
+void listingOnFile(TList *l, FILE *closedFile, int index);
+
+int removeList(TList *l, TContact *nContact);
+
+int* searchList (TList *l, TContact *nContact);
+
+long long searchAmountList (TList *l, TContact *nContact);
+
+int checkBarN(char string[]);
+
+#endif // LISTA_H

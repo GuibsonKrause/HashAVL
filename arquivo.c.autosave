@@ -1,0 +1,140 @@
+#include "arquivo.h"
+#define TAM_INICIAL 100000
+#define FATOR 0.95
+
+void execucao()
+{
+    TNodo *nodo = createAvlTree();
+    TContact *nContact;
+    TReturn *ret = (TReturn*) malloc(sizeof (TReturn));
+    ret->amount = 0;
+    ret->flag = 0;
+
+
+    TClosedHash *hash = createClosedHash(5);
+
+
+    char urlEntrada[] = "entrada_mil.txt", urlOperation[] = "operacoes.txt", info[100],
+            *psReturn, urlBusca[] = "buscas.txt";
+    FILE *file, *arqBusca;
+
+    file = fopen(urlEntrada, "r");
+
+    if(file == NULL)
+        printf("Erro, nao foi possivel abrir o arquivo de entrada\n");
+    else
+    {
+        while( (fgets(info, sizeof(info), file))!=NULL )
+        {
+            nContact = (TContact*) malloc (sizeof (TContact));
+            psReturn = strtok(info, ";");
+            strcpy(nContact->name, psReturn);
+            /* Nas proximas chamadas, deve-se passar um ponteiro �nulo�.
+                 * Isto �indica� para a funcao que a pesquisa deve continuar
+                 * no ponteiro anterior. */
+            psReturn = strtok('\0', "");
+
+            /* Um valor nulo (NULL) eh considerado sempre falso em comparacoes booleanas. */
+            if(psReturn)
+            {
+                if (checkBarN(psReturn) == 1)
+                {
+                    // Usado para tirar o \n do fim da string.
+                    psReturn = strtok(psReturn, "\n");
+                }
+                strcpy(nContact->phone, psReturn);
+            }
+            insertClosedHash(hash, nContact);
+        }
+    }
+    fclose(file);
+
+    file = fopen(urlOperation, "r");
+    if (file == NULL)
+        printf("Erro, nao foi possivel abrir o arquivo de operacoes\n");
+    else
+    {
+        while( (fgets(info, sizeof(info), file))!=NULL )
+        {
+            nContact = (TContact*) malloc (sizeof (TContact));
+            psReturn = strtok(info, ";");
+
+            if (strcmp(psReturn, "E") == 0)
+            {
+                nContact = (TContact*) malloc (sizeof (TContact));
+
+                psReturn = strtok('\0', "\n");
+                strcpy(nContact->name, psReturn);                
+                
+                ret = removeClosedHash(hash, contato, ret);
+                free(nContact);
+
+            }
+            else if (strcmp(psReturn, "I") == 0)
+            {
+                nContact = (TContact*) malloc (sizeof (TContact));
+                psReturn = strtok('\0', ";");
+                strcpy(nContact->name, psReturn);
+                /* Nas proximas chamadas, deve-se passar um ponteiro �nulo�.
+                     * Isto �indica� para a funcao que a pesquisa deve continuar
+                     * no ponteiro anterior. */
+                psReturn = strtok('\0', "");
+
+                // Um valor nulo (NULL) eh considerado sempre falso em comparacoes booleanas.
+                if(psReturn)
+                {
+                    if (checkBarN(psReturn) == 1)
+                    {
+                        // Usado para tirar o \n do fim da string
+                        psReturn = strtok(psReturn, "\n");
+                    }
+                    strcpy(contato->telefone, psReturn);
+                }
+                insereOrdenado(contato, lista);
+                insereHashFechada(&hashFechada, contato);
+                hashAberta = inserirAberta(contato, hashAberta);
+            }
+            else if (strcmp(psReturn, "B") == 0)
+            {
+                arqBusca = fopen(urlBusca, "a");
+
+                psReturn = strtok('\0', ";");
+                strcpy(contato->nome, psReturn);
+                /* Nas proximas chamadas, deve-se passar um ponteiro �nulo�.
+                    * Isto �indica� para a funcao que a pesquisa deve continuar
+                    * no ponteiro anterior. */
+                psReturn = strtok('\0', "");
+                /* Um valor nulo (NULL) eh considerado sempre falso em comparacoes booleanas. */
+                if(psReturn)
+                {
+                    if (verificaBarraN(psReturn) == 1)
+                    {
+                        // Usado para tirar o \n do fim da string.
+                        psReturn = strtok(psReturn, "\n");
+                    }
+                    strcpy(nContact->phone, psReturn);
+                }
+                *retLista = buscar(lista, contato);
+                *retFechada = buscarHashFechada(&hashFechada, contato);
+                *retAberta = buscarHashAberta(hashAberta, contato);
+
+                // Arquivo de saida de busca.
+                if(arqBusca == NULL)
+                    printf("Erro, nao foi possivel abrir o arquivo de busca\n");
+                else
+                {
+                    fprintf(arqBusca, "%s;%s;%d;%d;%d;%d;%d;%d\n", contato->nome,
+                            contato->telefone, retLista->ret, retLista->verific, retFechada->ret,
+                            retFechada->verific, retAberta->ret, retAberta->verific);
+                }
+                fclose(arqBusca);
+            }
+        }
+    }
+    fclose(file);
+    // Arquivo de saida hashAberta
+    saidaHashAberta(hashAberta);
+    // Arquivo de saida hashFechada
+    saidaHashFechada(&hashFechada);
+}
+
